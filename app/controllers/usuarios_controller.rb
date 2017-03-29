@@ -1,17 +1,28 @@
 class UsuariosController < ApplicationController
   before_action :set_usuario, only: [:show, :update, :destroy]
+  #ActionController::Parameters.action_on_unpermitted_parameters = :raise
 
   # GET /usuarios
   def index
     @usuarios = Usuario.all
-    json_response(@usuarios)
+    render json: {usuarios: @usuarios , total: @usuarios.size}
   end
 
   # POST /usuarios
   # aca tengo que crear la response de no se pudo crear etc.
   def create
-    @usuario = Usuario.create!(usuario_params)
-    json_response(@usuario, :created)
+    if (params.has_key?(:id))
+      @id = params[:id]
+      render json: {error: "No se puede crear usuario con id="+ @id },status: 400
+    else
+      begin
+        @usuario = Usuario.create!(usuario_params)
+        json_response(@usuario, :created)  
+      rescue ActiveRecord::RecordInvalid
+        render json:{error: "La creación ha fallado"}, status: 500
+      end
+      
+    end
   end
 
   # GET /usuarios/:id
@@ -21,14 +32,26 @@ class UsuariosController < ApplicationController
 
   # PUT /usuarios/:id
   def update
-    @usuario.update(usuario_params)
-    head :no_content
+      if (params.has_key?(:id))
+        @user = params[:usuario]
+        if @user.has_key?("id")
+          render json: {error: "id no es modificable"}, status:400
+        else
+          begin
+            @usuario.update(usuario_params)
+            head format: JSON  
+          rescue ActiveRecord::RecordInvalid
+            render json:{error: "La modificación ha fallado"}, status: 500
+          end
+        end
+      end
+      
   end
 
   # DELETE /usuarios/:id
   def destroy
     @usuario.destroy
-    head :no_content
+    head format: JSON ,status:204
   end
 
   private
