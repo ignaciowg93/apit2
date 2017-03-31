@@ -39,7 +39,6 @@ class UsuariosController < ApplicationController
         else
           begin
             @usuario.update(usuario_params)
-            #json_response(@usuario)
             render json: @usuario , status: 200
           rescue ActiveRecord::RecordInvalid
             render json:{error: "La modificación ha fallado"}, status: 500
