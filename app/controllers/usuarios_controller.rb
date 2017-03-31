@@ -13,7 +13,7 @@ class UsuariosController < ApplicationController
   def create
     if (params.has_key?(:id))
       @id = params[:id]
-      render json: {error: "No se puede crear usuario con id="+ @id },status: 400
+      render json: {error: "No se puede crear usuario con id"  },status: 400
     else
       begin
         @usuario = Usuario.create!(usuario_params)
@@ -39,7 +39,8 @@ class UsuariosController < ApplicationController
         else
           begin
             @usuario.update(usuario_params)
-            head format: JSON  
+            #json_response(@usuario)
+            render json: @usuario , status: 200
           rescue ActiveRecord::RecordInvalid
             render json:{error: "La modificación ha fallado"}, status: 500
           end
